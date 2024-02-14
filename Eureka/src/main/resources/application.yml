@@ -1,0 +1,27 @@
+server:
+  # 服务端口
+  port: ${PORT:8761}
+
+
+spring:
+  application:
+    # 服务名
+    name: EurekaServer
+
+# 日志的位置
+logging:
+  file:
+    name: logs/eureka.log
+
+eureka:
+  server:
+    enable-self-preservation: true # 是否开启自动剔除服务，这是默认值
+    eviction-interval-timer-in-ms: 60000 # 60秒无响应则剔除，这是默认值
+  instance:
+    hostname: ${HOST:127.0.0.1}
+
+  client:
+    # 下面这两个非常令人费解的配置，可以理解为直接禁止了client的几乎任何功能
+    # 所以可以这么理解，禁止拉注册也禁止注册 = 非client = Eureka Server
+    register-with-eureka: false  # 禁止此服务去注册到其他Eureka服务
+    fetch-registry: false  # 禁止此服务去拉取其他服务的注册信息

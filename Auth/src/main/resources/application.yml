@@ -1,0 +1,94 @@
+auth:
+  secret: a_random_secret
+  expiration_ms: 86400000
+
+server:
+  port: 8080
+  servlet:
+    # 增加endpoint全局前缀
+    # 为什么需要加一个看上无意义的全局前缀？
+    # 因为在使用gateway用全局前缀区分路由的时候
+    # 这个全局前缀显得至关重要
+    context-path: /auth
+
+springfox:
+  documentation:
+    swagger-ui:
+      enabled: true
+
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
+        type.descriptor.sql.BasicBinder: TRACE
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://127.0.0.1:8761/eureka/}
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 5MB
+  redis:
+    host: ${REDIS_HOST:127.0.0.1}
+    port: ${REDIS_PORT:6379}
+    database: ${REDIS_DB:0}
+    lettuce:
+      shutdown-timeout: 200ms
+      pool:
+        max-active: 7
+        max-idle: 7
+        min-idle: 2
+        max-wait: -1ms
+  session:
+    store-type: redis
+
+  application:
+    name: auth
+  profiles:
+    active: dev
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show_sql: true
+
+  properties:
+    hibernate:
+      dialect: org.hibernate.dialect.MySQLDialect
+      new_generator_mappings: false
+      format_sql: true
+
+  datasource:
+    filters: stat,wall
+    maxActive: 1000
+    initialSize: 50
+    minIdle: 20
+    maxWait: 60000
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: select 'x'
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: false
+    maxOpenPreparedStatements: 500
+    logSlowSql: true
+
+    contentShardingValue: 64
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${MYSQL_HOST:127.0.0.1}:${MYSQL_PORT:3306}/${MYSQL_DB:demo}?useUnicode=true&characterEncoding=UTF8&useSSL=false&serverTimezone=PRC
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PWD:test123456}
+    druid:
+      filter:
+        commons-log:
+          data-source-log-enabled: true
+          statement-log-enabled: true
+          statement-executable-sql-log-enable: true

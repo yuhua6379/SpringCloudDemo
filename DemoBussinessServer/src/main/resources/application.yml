@@ -1,0 +1,35 @@
+demo:
+  secret: a_random_secret
+  expiration_ms: 86400000
+
+server:
+  port: 8081
+  servlet:
+    # 增加endpoint全局前缀
+    # 为什么需要加一个看上无意义的全局前缀？
+    # 因为在使用gateway用全局前缀区分路由的时候
+    # 这个全局前缀显得至关重要
+    context-path: /demo
+
+
+springfox:
+  documentation:
+    swagger-ui:
+      enabled: true
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://127.0.0.1:8761/eureka/}
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 5MB
+
+  application:
+    name: demo
+
+

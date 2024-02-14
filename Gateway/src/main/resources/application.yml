@@ -1,0 +1,64 @@
+server:
+  port: ${PORT:80}
+  compression:
+    enabled: true # 启动压缩功能
+    min-response-size: 1024 # 设定最小响应字节数，听起来怪怪的，但是理解为大于这个大小的文件才压缩就行了
+    mime-types: # 指定哪些 MIME 类型的响应需要进行压缩。只有列表中指定的 MIME 类型的响应才会被压缩
+    - image/png
+    - image/jpeg
+    - image/jpg
+    - text/html
+    - application/javascript
+    - text/css
+    - application/octet-stream
+    - application/json
+
+logging:
+  file:
+    name: logs/gateway.log  # 指定日志输出文件的位置和文件名
+  level:
+    org:
+      springframework:
+        cloud:
+          gateway: DEBUG    # 设置 Spring Cloud Gateway 组件的日志级别为 DEBUG
+                            # org.springframework.cloud 对应于 Java 包的命名约定，用于指定 Spring Cloud 项目中的相关组件的日志级别
+
+spring:
+  cloud:
+    gateway:
+      routes:
+
+        - id: auth_blocked        # route项的唯一id
+          uri: no://op            # dummy uri
+          predicates:
+            - Path=/auth/user/info
+
+        - id: auth_allowed        # route项的唯一id
+          uri: ${AUTH:lb://auth}  # 目标微服务的 URI，这里使用了服务发现机制
+                                  # lb://auth表示对此服务进行负载均衡，auth必须是eureka的注册名
+                                  # ${AUTH} 是一个占位符，它将被环境变量或配置属性替换
+                                  # 如果未设置相应的环境变量或配置属性，将默认使用 'lb://auth'
+          predicates:             # 谓词定义了请求匹配规则，只有匹配的请求才会被路由
+            - Path=/auth/**       # 通俗来说，任何xxx/auth/xxx的访问都会路由到此服务
+
+        - id: demo_allowed
+          uri: ${AUTH:lb://demo}
+          predicates:
+            - Path=/demo/**
+
+  application:
+    name: Gateway
+
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    service-url: # 下面的配置指向了Eureka的服务端
+      defaultZone: ${EUREKA_URL:http://127.0.0.1:8761/eureka/}
+
+
+
+auth-filter:
+  open: ${OPEN_AUTH:true}
+  no-auth: /rate/interest_rate_rule/export_excel,/external/external_list/download,/external/internal_list/download
